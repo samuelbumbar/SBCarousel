@@ -1,0 +1,63 @@
+@mixin arrow-button {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: white;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+    rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+  transition: all 150ms linear;
+
+  &:hover {
+    background-color: #ddd;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  @media (hover: none) and (pointer: none) {
+    display: none;
+  }
+}
+
+@mixin arrow {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 7.5px solid transparent;
+  border-bottom: 7.5px solid transparent;
+}
+
+.left-arrow-button {
+  @include arrow-button;
+  left: 24px;
+}
+
+.right-arrow-button {
+  @include arrow-button;
+  right: 24px;
+}
+
+.left-arrow {
+  @include arrow;
+  border-right: 10px solid #484848;
+  border-left: 5px solid transparent;
+  transform: translateX(-25%);
+}
+
+.right-arrow {
+  @include arrow;
+  border-left: 10px solid #484848;
+  border-right: 5px solid transparent;
+  transform: translateX(25%);
+}
