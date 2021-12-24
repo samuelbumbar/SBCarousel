@@ -1,5 +1,19 @@
 import classNames from "classnames";
-import React, { Children, FC, ReactFragment, RefObject, useState } from "react";
+import React, {
+  Children,
+  FC,
+  HTMLProps,
+  MouseEvent,
+  ReactChild,
+  ReactFragment,
+  ReactNode,
+  ReactPortal,
+  RefObject,
+  TouchEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useEffectOnce, useInterval } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
 
@@ -12,7 +26,7 @@ export type ISBCarouselProps = {
   /**
    * Items that going to be showed
    */
-  children: React.ReactNode;
+  children: ReactNode;
 
   /**
    * Indicate how many items to show at once in view
@@ -154,7 +168,7 @@ export type ISBCarouselProps = {
   /**
    * props for container element, be aware that if you supply className props here, it will overwrite the default one
    */
-  containerProps?: React.HTMLProps<HTMLDivElement>;
+  containerProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * additional className for wrapper element
@@ -164,7 +178,7 @@ export type ISBCarouselProps = {
   /**
    * props for wrapper element, be aware that if you supply className props here, it will overwrite the default one
    */
-  wrapperProps?: React.HTMLProps<HTMLDivElement>;
+  wrapperProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * additional className for content wrapper element
@@ -174,7 +188,7 @@ export type ISBCarouselProps = {
   /**
    * props for content wrapper element, be aware that if you supply className props here, it will overwrite the default one
    */
-  contentWrapperProps?: React.HTMLProps<HTMLDivElement>;
+  contentWrapperProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * additional className for content element
@@ -184,7 +198,7 @@ export type ISBCarouselProps = {
   /**
    * props for content element, be aware that if you supply className props here, it will overwrite the default one
    */
-  contentProps?: React.HTMLProps<HTMLDivElement>;
+  contentProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * Classname for indicator container
@@ -194,7 +208,7 @@ export type ISBCarouselProps = {
   /**
    * props for indicator container element, be aware that if you supply className and ref props here, it will overwrite the default one
    */
-  indicatorContainerProps?: React.HTMLProps<HTMLDivElement>;
+  indicatorContainerProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * className for each classes in the indicator,
@@ -257,17 +271,17 @@ const SBCarousel: FC<ISBCarouselProps> = ({
   /**
    * Reference to the carousel content wrapper
    */
-  const carouselContentWrapperRef: RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(null);
+  const carouselContentWrapperRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
   /**
    * Total items
    */
-  const length: number = React.useMemo<number>((): number => Children.count(children), [children]);
+  const length: number = useMemo<number>((): number => Children.count(children), [children]);
 
   /**
    * Current index item of the carousel
    */
-  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   /**
    * Confirms if currently draging or not
@@ -277,22 +291,22 @@ const SBCarousel: FC<ISBCarouselProps> = ({
   /**
    * Confirms if the mouse pointer is inside the carousel
    */
-  const [isMouseInside, setIsMouseInside] = React.useState<boolean>(false);
+  const [isMouseInside, setIsMouseInside] = useState<boolean>(false);
 
   /**
    * First touch / click position to be used in calculation for the swipe speed
    */
-  const [touchClickPosition, setTouchClickPosition] = React.useState<null | number>(null);
+  const [touchClickPosition, setTouchClickPosition] = useState<null | number>(null);
 
   /**
    * Main scrollLeft value, indicating the current index scroll position
    */
-  const [scrollLeft, setScrollLeft] = React.useState<number>(0);
+  const [scrollLeft, setScrollLeft] = useState<number>(0);
 
   /**
    * Checks if the carousel is repeating its item
    */
-  const isRepeating: boolean = React.useMemo<boolean>(
+  const isRepeating: boolean = useMemo<boolean>(
     (): boolean => infiniteLoop && Children.count(children) > itemsPerView,
     [children, infiniteLoop, itemsPerView]
   );
@@ -300,7 +314,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
   /**
    * The width of an item inside the page
    */
-  const itemWidth: number = React.useMemo<number>(
+  const itemWidth: number = useMemo<number>(
     (): number =>
       carouselContentWrapperRef.current
         ? carouselContentWrapperRef.current.offsetWidth / itemsPerView
@@ -413,13 +427,13 @@ const SBCarousel: FC<ISBCarouselProps> = ({
     if (!carouselContentWrapperRef.current) return;
 
     const childrenArray: (
-      | React.ReactChild
-      | React.ReactFragment
-      | React.ReactPortal
+      | ReactChild
+      | ReactFragment
+      | ReactPortal
     )[] = Children.toArray(children);
 
     for (let index: number = 0; index < length; index++) {
-      const child: React.ReactChild | React.ReactFragment | React.ReactPortal = childrenArray[index];
+      const child: ReactChild | ReactFragment | ReactPortal = childrenArray[index];
       const childLeft: number = itemWidth * index;
       const newScrollLeft: number = carouselContentWrapperRef.current.scrollLeft;
 
@@ -441,7 +455,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user start the swipe gesture
    * @param e TouchEvent
    */
-  const handleOnTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleOnTouchStart = (e: TouchEvent<HTMLDivElement>): void => {
     if (!carouselContentWrapperRef.current) return;
 
     // Save the first position of the touch
@@ -453,7 +467,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when one or more touch points are removed from the touch surface
    * @param e TouchEvent
    */
-  const handleOnTouchEnd = (_e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleOnTouchEnd = (_e: TouchEvent<HTMLDivElement>): void => {
     setTouchClickPosition(null);
     isDragging && setIsDragging(false);
     !freeScroll && scrollToClosestItemIndex();
@@ -463,7 +477,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when one or more touch points have been disrupted (for example, too many touch points are created)
    * @param e TouchEvent
    */
-  const handleOnTouchCancel = (e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleOnTouchCancel = (e: TouchEvent<HTMLDivElement>): void => {
     touchClickPosition && handleOnTouchEnd(e);
     isDragging && setIsDragging(false);
   };
@@ -472,7 +486,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user move the finger in swipe gesture
    * @param e TouchEvent
    */
-  const handleOnTouchMove = (e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleOnTouchMove = (e: TouchEvent<HTMLDivElement>): void => {
     // Proceed only if the initial position is not null
     if (touchClickPosition === null || !carouselContentWrapperRef.current) {
       return;
@@ -500,7 +514,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user presses a mouse button
    * @param e MouseEvent
    */
-  const handleOnMouseDown = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleOnMouseDown = (e: MouseEvent<HTMLDivElement>): void => {
     e.stopPropagation();
 
     if (!carouselContentWrapperRef.current) return;
@@ -517,7 +531,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user releases the mouse button
    * @param e MouseEvent
    */
-  const handleOnMouseUp = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleOnMouseUp = (e: MouseEvent<HTMLDivElement>): void => {
     e.stopPropagation();
 
     setTouchClickPosition(null);
@@ -534,7 +548,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user moves the mouse outside of the element
    * @param e MouseEvent
    */
-  const handleOnMouseLeave = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleOnMouseLeave = (e: MouseEvent<HTMLDivElement>): void => {
     touchClickPosition && handleOnMouseUp(e);
     setIsMouseInside(false);
   };
@@ -543,7 +557,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
    * Handle when the user move the mouse after the click
    * @param e MouseEvent
    */
-  const handleOnMouseMove = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleOnMouseMove = (e: MouseEvent<HTMLDivElement>): void => {
     e.stopPropagation();
 
     // Proceed only if the initial position is not null
@@ -568,7 +582,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
   /**
    * Render previous items before the first item
    */
-  const extraPreviousItems: ReactFragment[] = React.useMemo<ReactFragment[]>(() => {
+  const extraPreviousItems: ReactFragment[] = useMemo<ReactFragment[]>(() => {
     let output: ReactFragment[] = [];
     for (let index: number = 0; index < itemsPerView; index++) {
       output.push(Children.toArray(children)[length - 1 - index]);
@@ -580,7 +594,7 @@ const SBCarousel: FC<ISBCarouselProps> = ({
   /**
    * Render next items after the last item
    */
-  const extraNextItems: ReactFragment[] = React.useMemo<ReactFragment[]>(() => {
+  const extraNextItems: ReactFragment[] = useMemo<ReactFragment[]>(() => {
     let output: ReactFragment[] = [];
     for (let index: number = 0; index < itemsPerView; index++) {
       output.push(Children.toArray(children)[index]);

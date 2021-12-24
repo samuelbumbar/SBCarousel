@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { FC, RefObject, useEffect, useMemo } from "react";
+import React, { FC, HTMLProps, RefObject, useEffect, useMemo, useRef } from "react";
 import { useEffectOnce } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
 
@@ -29,7 +29,7 @@ export interface ISBCarouselIndicatorsProps {
   /**
    * props for indicator container element, be aware that if you supply className and ref props here, it will overwrite the default one
    */
-  indicatorContainerProps?: React.HTMLProps<HTMLDivElement>;
+  indicatorContainerProps?: HTMLProps<HTMLDivElement>;
 
   /**
    * className for each classes in the indicator,
@@ -71,7 +71,7 @@ const SBCarouselIndicators: FC<ISBCarouselIndicatorsProps> = ({
    * Reference to the indicator container
    */
   const indicatorContainerRef: RefObject<HTMLDivElement> =
-    React.useRef<HTMLDivElement>(null);
+    useRef<HTMLDivElement>(null);
 
   /**
    * Used in order for mobile devices to be able to display behaviour smooth
